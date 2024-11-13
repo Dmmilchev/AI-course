@@ -49,4 +49,5 @@ def play_game():
     print("\nIt's a draw!")
     print(board)
 
-play_game()
+if __name__ == '__main__':
+    play_game()

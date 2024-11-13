@@ -6,7 +6,7 @@ class Bot:
             raise ValueError("Player must be 1 (X) or -1 (O)")
         self.player = player
 
-    def minimax(self, board: Board, depth: int, alpha: int, beta: int, maximizing: bool) -> tuple[int, tuple[int, int]]:
+    def minimax(self, board: Board, alpha: int, beta: int, maximizing: bool) -> tuple[int, tuple[int, int]]:
         if board.is_terminal() or not board.get_empty_squares():
             if board.is_player_winning(self.player):
                 return board.get_heuristic_value(), None 
@@ -21,7 +21,7 @@ class Bot:
             for move in board.get_empty_squares():
                 board.make_move(self.player, move)
                 
-                eval_score, _ = self.minimax(board, depth + 1, alpha, beta, False)
+                eval_score, _ = self.minimax(board, alpha, beta, False)
                 
                 board.make_move(0, move)
                 
@@ -40,7 +40,7 @@ class Bot:
             for move in board.get_empty_squares():
                 board.make_move(-self.player, move)
                 
-                eval_score, _ = self.minimax(board, depth + 1, alpha, beta, True)
+                eval_score, _ = self.minimax(board, alpha, beta, True)
                 
                 board.make_move(0, move)
                 
@@ -55,5 +55,5 @@ class Bot:
             return min_eval, best_move
 
     def get_best_move(self, board: Board) -> tuple[int, int]:
-        _, best_move = self.minimax(board, depth=0, alpha=-float('inf'), beta=float('inf'), maximizing=True)
+        _, best_move = self.minimax(board, alpha=-float('inf'), beta=float('inf'), maximizing=True)
         return best_move
