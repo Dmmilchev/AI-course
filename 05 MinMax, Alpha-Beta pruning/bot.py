@@ -1,38 +1,59 @@
 from board import Board
 
 class Bot:
-    def __init__(self, player: int) -> None:
+    def __init__(self, player: int):
         if player not in [1, -1]:
-            raise ValueError('Player must be 1 or -1')
+            raise ValueError("Player must be 1 (X) or -1 (O)")
         self.player = player
-        
-    def move(self, 
-             board: Board, 
-             depth: int, 
-             alpha: int, 
-             beta: int, maximizingPlayer: bool):
-        
-        if depth == 0 or board.is_terminal():
-            return board.get_heuristic_value()
-        
-        if maximizingPlayer:
-            val = float('-inf')
+
+    def minimax(self, board: Board, depth: int, alpha: int, beta: int, maximizing: bool) -> tuple[int, tuple[int, int]]:
+        if board.is_terminal() or not board.get_empty_squares():
+            if board.is_player_winning(self.player):
+                return board.get_heuristic_value(), None 
+            elif board.is_player_winning(-self.player):
+                return board.get_heuristic_value(), None 
+            else:
+                return 0, None  
+
+        best_move = None
+        if maximizing:
+            max_eval = -float('inf')
             for move in board.get_empty_squares():
-                board.make_move(1, move)
-                val = max(val, self.move(board, depth - 1, alpha, beta, False)[0])
-                alpha = max(val, alpha)
+                board.make_move(self.player, move)
+                
+                eval_score, _ = self.minimax(board, depth + 1, alpha, beta, False)
+                
                 board.make_move(0, move)
-                if val >= beta:
+                
+                if eval_score > max_eval:
+                    max_eval = eval_score
+                    best_move = move
+
+                alpha = max(alpha, eval_score)
+                if beta <= alpha:
                     break
-                return val, move
             
+            return max_eval, best_move
+
         else:
-            val = float('inf')
+            min_eval = float('inf')
             for move in board.get_empty_squares():
-                board.make_move(-1, move)
-                val = max(val, self.move(board, depth - 1, alpha, beta, True)[0])
-                beta = min(val, beta)
+                board.make_move(-self.player, move)
+                
+                eval_score, _ = self.minimax(board, depth + 1, alpha, beta, True)
+                
                 board.make_move(0, move)
-                if val <= alpha:
+                
+                if eval_score < min_eval:
+                    min_eval = eval_score
+                    best_move = move
+
+                beta = min(beta, eval_score)
+                if beta <= alpha:
                     break
-                return val, move
+
+            return min_eval, best_move
+
+    def get_best_move(self, board: Board) -> tuple[int, int]:
+        _, best_move = self.minimax(board, depth=0, alpha=-float('inf'), beta=float('inf'), maximizing=True)
+        return best_move

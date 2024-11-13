@@ -1,5 +1,5 @@
 from board import Board
-from bot2 import Bot
+from bot import Bot
 
 def play_game():
     board = Board()
